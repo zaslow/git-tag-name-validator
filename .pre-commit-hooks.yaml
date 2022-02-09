@@ -1,0 +1,5 @@
+- id: validate
+  name: Validate whether git tags conform to a given scheme
+  stages: [push]
+  entry: ruby validate.rb
+  language: ruby
