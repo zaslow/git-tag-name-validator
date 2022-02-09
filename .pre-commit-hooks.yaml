@@ -1,4 +1,4 @@
-- id: validate
+- id: validate-git-tag-name
   name: Validate whether git tags conform to a given scheme
   stages: [push]
   entry: ruby validate.rb
