@@ -1,5 +1,6 @@
 - id: validate-git-tag-name
   name: Validate whether git tags conform to a given scheme
   stages: [push]
-  entry: ruby validate.rb
+  entry: git-tag-name-validator
   language: ruby
+  additional_dependencies: ['git_tag_name_validator:0.0.0']
