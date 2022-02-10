@@ -7,4 +7,5 @@ repos:
   - id: reek
     stages: [commit]
   - id: rubocop
+    args: ['-A']
     stages: [commit]
