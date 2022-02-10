@@ -3,5 +3,3 @@
   # stages: [push]
   entry: git_tag_name_validator
   language: ruby
-  types: ['ruby']
-  # additional_dependencies: ['git_tag_name_validator:0.0.0']
