@@ -1,0 +1,5 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.5
+Metrics/MethodLength:
+  Max: 15

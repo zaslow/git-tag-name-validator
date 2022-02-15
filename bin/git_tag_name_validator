@@ -4,4 +4,4 @@
 
 require 'git_tag_name_validator'
 
-GitTagNameValidator.test
+GitTagNameValidator.new(scheme: ARGV.first).execute
