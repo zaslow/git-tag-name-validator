@@ -2,49 +2,58 @@
 
 require 'git_tag_name_validator'
 
-schemes = {
-  cal_ver: {
-    name: 'CalVer',
-    pattern: '0Y.0M.MICRO'
-  },
-  sem_ver: {
-    name: 'SemVer',
-    pattern: 'MAJOR.MINOR.PATCH'
-  }
-}
+describe 'SemVer' do
+  pattern = 'MAJOR.MINOR.PATCH'
+  subject { GitTagNameValidator.new(scheme: pattern) }
 
-describe schemes[:sem_ver][:name] do
-  git_tag_string = '0.0.0 0.0.1 0.1.0 0.1.1'
+  context ['0.0.0', '0.0.1', '0.1.0', '0.1.1'].join(' ') do
+    output_msg = "\nAll local tags match a scheme of #{pattern}\n"
 
-  subject { GitTagNameValidator.new(scheme: schemes[:sem_ver][:pattern]) }
+    before { allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return(self.class.description) }
 
-  context git_tag_string do
-    before do
-      allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return(git_tag_string)
+    it 'All tags match SemVer scheme' do
+      expect { subject.execute }.to output(output_msg).to_stdout
     end
+  end
 
-    it "All tags match #{schemes[:sem_ver][:name]} scheme" do
-      expect do
-        subject.execute
-      end.to output("\nAll local tags match a scheme of #{schemes[:sem_ver][:pattern]}\n").to_stdout
+  context ['0.0.0', '0.0.1', '0.1.1'].join(' ') do
+    exception_msg = "0.1.1 does not match a scheme of #{pattern}: "\
+      '1 is not a valid value for PATCH'\
+      ' or the tag that should precede 0.1.1 does not exist.'
+
+    before { allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return(self.class.description) }
+
+    it 'One or more tags do not match SemVer scheme' do
+      expect { subject.execute }.to raise_error(an_instance_of(RuntimeError)
+        .and(having_attributes(message: exception_msg)))
     end
   end
 end
 
-describe schemes[:cal_ver][:name] do
-  git_tag_string = '20.02.0 21.10.0 21.10.1 22.03.0'
+describe 'CalVer' do
+  pattern = '0Y.0M.MICRO'
+  subject { GitTagNameValidator.new(scheme: pattern) }
 
-  subject { GitTagNameValidator.new(scheme: schemes[:cal_ver][:pattern]) }
+  context ['20.02.0', '21.10.0', '21.10.1', '22.03.0'].join(' ') do
+    output_msg = "\nAll local tags match a scheme of #{pattern}\n"
 
-  context git_tag_string do
-    before do
-      allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return(git_tag_string)
+    before { allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return self.class.description }
+
+    it 'All tags match CalVer scheme' do
+      expect { subject.execute }.to output(output_msg).to_stdout
     end
+  end
 
-    it "All tags match #{schemes[:cal_ver][:name]} scheme" do
-      expect do
-        subject.execute
-      end.to output("\nAll local tags match a scheme of #{schemes[:cal_ver][:pattern]}\n").to_stdout
+  context ['21.10.0', '22.02.15'].join(' ') do
+    exception_msg = "22.02.15 does not match a scheme of #{pattern}: "\
+      '15 is not a valid value for MICRO'\
+      ' or the tag that should precede 22.02.15 does not exist.'
+
+    before { allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return self.class.description }
+
+    it 'One or more tags do not match CalVer scheme' do
+      expect { subject.execute }.to raise_error(an_instance_of(RuntimeError)
+        .and(having_attributes(message: exception_msg)))
     end
   end
 end

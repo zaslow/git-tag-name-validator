@@ -20,6 +20,14 @@ class GitTagNameValidator
     puts "\nAll local tags match a scheme of #{@scheme}"
   end
 
+  def self.date_part_validator(range, tag_part)
+    zero_padded_date_parts = range.to_a.map { |int_val| int_val.to_s.rjust(2, '0') }
+
+    zero_padded_date_parts.include? tag_part
+  end
+
+  private_class_method :date_part_validator
+
   def self.numeric_validator(existing_tag_parts, tag_part)
     tag_part_int = tag_part.to_i
     expected_tag_part = (tag_part_int - 1).to_s
@@ -29,14 +37,6 @@ class GitTagNameValidator
   end
 
   private_class_method :numeric_validator
-
-  def self.date_part_validator(range, tag_part)
-    zero_padded_date_parts = range.to_a.map { |int_val| int_val.to_s.rjust(2, '0') }
-
-    zero_padded_date_parts.include? tag_part
-  end
-
-  private_class_method :date_part_validator
 
   def self.scheme_validators
     month_validator_lamda = lambda do |_existing_tag_parts, tag_part|
@@ -65,6 +65,17 @@ class GitTagNameValidator
 
   private # instance methods
 
+  def existing_tag_parts(current_tag, tag_part_index)
+    prev_index = tag_part_index - 1
+    matching_sub_versions = @tags.select do |existing_tag|
+      tag_part_index.zero? || (
+        existing_tag.split('.')[prev_index] == current_tag.split('.')[prev_index]
+      )
+    end
+
+    matching_sub_versions.map { |match| match.split('.')[tag_part_index] }
+  end
+
   def validate_tag(tag)
     tag_parts = tag.split('.')
     no_match_exception_msg = "#{tag} does not match a scheme of #{@scheme}"
@@ -79,11 +90,10 @@ class GitTagNameValidator
   end
 
   def validate_tag_part(tag, tag_part_index, exception_msg)
-    existing_tag_parts = @tags.map { |existing_tag| existing_tag.split('.')[tag_part_index] }
     scheme_part = @scheme.split('.')[tag_part_index]
     tag_part = tag.split('.')[tag_part_index]
 
-    return if @scheme_validators[scheme_part].call(existing_tag_parts, tag_part)
+    return if @scheme_validators[scheme_part].call(existing_tag_parts(tag, tag_part_index), tag_part)
 
     raise "#{exception_msg}: #{tag_part} is not a valid value for #{scheme_part}"\
       " or the tag that should precede #{tag} does not exist."

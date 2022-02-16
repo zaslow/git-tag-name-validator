@@ -1,4 +1,7 @@
 ---
 detectors:
+  FeatureEnvy:
+    exclude:
+      - 'GitTagNameValidator#existing_tag_parts'
   TooManyStatements:
     max_statements: 7
