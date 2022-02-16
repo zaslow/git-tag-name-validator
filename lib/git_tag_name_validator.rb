@@ -20,12 +20,6 @@ class GitTagNameValidator
     puts "\nAll local tags match a scheme of #{@scheme}"
   end
 
-  def self.date_validator(tag_part, date_expression)
-    tag_part == Date.today.strftime(date_expression)
-  end
-
-  private_class_method :date_validator
-
   def self.numeric_validator(existing_tag_parts, tag_part)
     tag_part_int = tag_part.to_i
     expected_tag_part = (tag_part_int - 1).to_s
@@ -36,14 +30,30 @@ class GitTagNameValidator
 
   private_class_method :numeric_validator
 
+  def self.date_part_validator(range, tag_part)
+    zero_padded_date_parts = range.to_a.map { |int_val| int_val.to_s.rjust(2, '0') }
+
+    zero_padded_date_parts.include? tag_part
+  end
+
+  private_class_method :date_part_validator
+
   def self.scheme_validators
+    month_validator_lamda = lambda do |_existing_tag_parts, tag_part|
+      GitTagNameValidator.send(:date_part_validator, (0..12), tag_part)
+    end
+
+    year_validator_lamda = lambda do |_existing_tag_parts, tag_part|
+      GitTagNameValidator.send(:date_part_validator, (0..99), tag_part)
+    end
+
     numeric_validator_lambda = lambda do |existing_tag_parts, tag_part|
       GitTagNameValidator.send(:numeric_validator, existing_tag_parts, tag_part)
     end
 
     {
-      '0M' => ->(_existing_tag_parts, tag_part) { GitTagNameValidator.send(:numeric_validator, tag_part, '%m') },
-      '0Y' => ->(_existing_tag_parts, tag_part) { GitTagNameValidator.send(:numeric_validator, tag_part, '%y') },
+      '0M' => month_validator_lamda,
+      '0Y' => year_validator_lamda,
       'MAJOR' => numeric_validator_lambda,
       'MICRO' => numeric_validator_lambda,
       'MINOR' => numeric_validator_lambda,
@@ -63,14 +73,15 @@ class GitTagNameValidator
 
     index = 0
     while index < tag_parts.size # while loop is faster than each_with_index
-      validate_tag_part(tag_parts[index], index, no_match_exception_msg)
+      validate_tag_part(tag, index, no_match_exception_msg)
       index += 1
     end
   end
 
-  def validate_tag_part(tag_part, tag_part_index, exception_msg)
-    scheme_part = @scheme.split('.')[tag_part_index]
+  def validate_tag_part(tag, tag_part_index, exception_msg)
     existing_tag_parts = @tags.map { |existing_tag| existing_tag.split('.')[tag_part_index] }
+    scheme_part = @scheme.split('.')[tag_part_index]
+    tag_part = tag.split('.')[tag_part_index]
 
     return if @scheme_validators[scheme_part].call(existing_tag_parts, tag_part)
 

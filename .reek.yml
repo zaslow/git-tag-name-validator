@@ -1,4 +1,4 @@
 ---
 detectors:
   TooManyStatements:
-    max_statements: 6
+    max_statements: 7

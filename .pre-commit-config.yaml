@@ -9,3 +9,12 @@ repos:
   - id: rubocop
     args: ['-A']
     stages: [commit]
+- repo: local
+  hooks:
+    - id: rspec
+      name: Run rspec tests
+      stages: [commit]
+      entry: /bin/bash -c 'bundle exec rspec'
+      language: script
+      verbose: true
+      always_run: true
