@@ -9,12 +9,18 @@ repos:
   - id: rubocop
     args: ['-A']
     stages: [commit]
+- repo: https://github.com/zaslow/git-tag-name-validator
+  rev: '0.1.0'
+  hooks:
+  - id: validate-git-tag-name
+    args: ['MAJOR.MINOR.PATCH']
+    stages: [commit]
 - repo: local
   hooks:
-    - id: rspec
-      name: Run rspec tests
-      stages: [commit]
-      entry: /bin/bash -c 'bundle exec rspec'
-      language: script
-      verbose: true
-      always_run: true
+  - id: rspec
+    name: Run rspec tests
+    stages: [commit]
+    entry: /bin/bash -c 'bundle exec rspec'
+    language: script
+    verbose: true
+    always_run: true
