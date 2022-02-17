@@ -10,11 +10,11 @@ repos:
     args: ['-A']
     stages: [commit]
 - repo: https://github.com/zaslow/git-tag-name-validator
-  rev: '0.1.0'
+  rev: '0.1.1'
   hooks:
   - id: validate-git-tag-name
     args: ['MAJOR.MINOR.PATCH']
-    stages: [commit]
+    stages: [push]
 - repo: local
   hooks:
   - id: rspec
