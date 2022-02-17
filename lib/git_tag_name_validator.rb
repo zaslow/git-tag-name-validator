@@ -5,7 +5,11 @@ require 'date'
 # Main class for gem
 class GitTagNameValidator
   def initialize(scheme:)
-    @scheme = scheme
+    scheme_str = scheme.to_s
+
+    raise 'No tag scheme provided' if scheme_str.empty?
+
+    @scheme = scheme_str
     @scheme_validators = GitTagNameValidator.send :scheme_validators
     @tags = `git tag --list`.split
   end
