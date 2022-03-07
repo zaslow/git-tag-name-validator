@@ -3,5 +3,7 @@ detectors:
   FeatureEnvy:
     exclude:
       - 'GitTagNameValidator#existing_tag_parts'
+  NestedIterators:
+    max_allowed_nesting: 2
   TooManyStatements:
     max_statements: 7

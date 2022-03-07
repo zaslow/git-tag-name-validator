@@ -44,10 +44,10 @@ describe 'CalVer' do
     end
   end
 
-  context ['21.10.0', '22.02.15'].join(' ') do
-    exception_msg = "22.02.15 does not match a scheme of #{pattern}: "\
-      '15 is not a valid value for MICRO'\
-      ' or the tag that should precede 22.02.15 does not exist.'
+  context ['21.02.0', '22.10.0', '22.02.1'].join(' ') do
+    exception_msg = "22.02.1 does not match a scheme of #{pattern}: "\
+      '1 is not a valid value for MICRO'\
+      ' or the tag that should precede 22.02.1 does not exist.'
 
     before { allow_any_instance_of(GitTagNameValidator).to receive(:`).and_return self.class.description }
 

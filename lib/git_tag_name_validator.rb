@@ -70,11 +70,10 @@ class GitTagNameValidator
   private # instance methods
 
   def existing_tag_parts(current_tag, tag_part_index)
-    prev_index = tag_part_index - 1
     matching_sub_versions = @tags.select do |existing_tag|
-      tag_part_index.zero? || (
+      (0..tag_part_index - 1).to_a.all? do |prev_index|
         existing_tag.split('.')[prev_index] == current_tag.split('.')[prev_index]
-      )
+      end
     end
 
     matching_sub_versions.map { |match| match.split('.')[tag_part_index] }
